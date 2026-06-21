@@ -1,11 +1,11 @@
-AI Chatbot Backend using FastAPI (NVIDIA Llama 3.3)
+AI Chatbot Backend using FastAPI (Google Gemini)
 Overview
 
 This project implements a FastAPI backend that allows users to send prompts to an AI model and receive responses.
-It integrates with NVIDIA’s Llama-3.3-70b-instruct model and demonstrates API design, input validation, and error handling.
+It integrates with Google's Gemini 2.5 Flash model and demonstrates API design, input validation, and error handling.
 
 Workflow:
-User → FastAPI Backend → NVIDIA LLM → Response → User
+User → FastAPI Backend → Gemini LLM → Response → User
 
 Project Structure
 
@@ -15,11 +15,11 @@ app/schemas.py – Defines input/output validation rules
 
 app/routes.py – Contains the API endpoints
 
-app/llm_service.py – Handles communication with NVIDIA LLM
+app/llm_service.py – Handles communication with Gemini LLM
 
 app/config.py – Loads environment variables (API key)
 
-.env – Stores NVIDIA API key securely
+.env – Stores Gemini API key securely
 
 requirements.txt – Lists Python dependencies
 
@@ -43,7 +43,7 @@ Returns the AI-generated reply
 
 LLM Integration
 
-Uses NVIDIA Llama-3.3-70b-instruct model
+Uses Google Gemini 2.5 Flash model
 
 API key stored securely in .env
 
@@ -66,15 +66,11 @@ FastAPI backend with structured endpoints
 
 Pydantic validation for safe input handling
 
-Integration with NVIDIA LLM
+Integration with Gemini LLM
 
 Proper HTTP error responses
 
 Secure API key management via .env
 
 
-front end using steamlit 
-
-ERRORS:
-in api key 
-in validation 
+front end using streamlit 
