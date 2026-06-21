@@ -1,5 +1,8 @@
 import streamlit as st
 import requests
+import os
+
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/chat")
 
 st.set_page_config(
     page_title="AI Chatbot",
@@ -25,7 +28,7 @@ if prompt := st.chat_input("What is on your mind?"):
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = requests.post(
-                    "http://127.0.0.1:8000/chat",
+                    API_URL,
                     json={"prompt": prompt}
                 )
                 if response.status_code == 200:
