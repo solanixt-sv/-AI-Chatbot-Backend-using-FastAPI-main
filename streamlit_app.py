@@ -1,10 +1,5 @@
 import streamlit as st
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from app.llm_service import get_ai_reply, get_ai_reply_stream
+import requests
 
 st.set_page_config(
     page_title="AI Chatbot",
@@ -28,8 +23,16 @@ if prompt := st.chat_input("What is on your mind?"):
 
     try:
         with st.chat_message("assistant"):
-            full_response = st.write_stream(get_ai_reply_stream(prompt))
-        
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+            with st.spinner("Thinking..."):
+                response = requests.post(
+                    "http://127.0.0.1:8000/chat",
+                    json={"prompt": prompt}
+                )
+                if response.status_code == 200:
+                    reply = response.json().get("reply", "No reply received.")
+                    st.markdown(reply)
+                    st.session_state.messages.append({"role": "assistant", "content": reply})
+                else:
+                    st.error(f"Error {response.status_code}: {response.text}")
     except Exception as e:
-        st.error(f"Error: {str(e)}")
+        st.error(f"Failed to connect to backend: {str(e)}")
