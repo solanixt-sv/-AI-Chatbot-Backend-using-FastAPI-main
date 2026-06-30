@@ -54,23 +54,64 @@ Scenario	Status Code
 Invalid request body	422
 Empty prompt	400
 AI API failure or empty response	500
-Running the Server
+## Running the Application Locally
 
-FastAPI server runs locally and can be tested via Swagger UI at /docs.
+You can run both the FastAPI backend and Streamlit frontend concurrently in a single command using the provided local runner script:
 
-Workflow allows seamless interaction between user requests and the AI model.
+```bash
+python run.py
+```
 
-Key Features
+This will automatically:
+1. Start the FastAPI backend at `http://127.0.0.1:8000`.
+2. Start the Streamlit frontend at `http://localhost:8501`.
+3. Link the frontend to the backend service.
 
-FastAPI backend with structured endpoints
+### Alternative (Separate Terminals)
 
-Pydantic validation for safe input handling
+If you prefer to run them in separate terminal sessions:
 
-Integration with Gemini LLM
+1. **Start the FastAPI Backend**:
+   ```bash
+   uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+   ```
+2. **Start the Streamlit Frontend**:
+   ```bash
+   streamlit run streamlit_app.py
+   ```
 
-Proper HTTP error responses
+---
 
-Secure API key management via .env
+## Deployment Guide
 
+You can deploy this application to cloud platforms using two different architectures:
 
-front end using streamlit 
+### Option A: Single Service Deployment (Recommended & Free Tier Friendly)
+
+Since `streamlit_app.py` features a **self-hosting auto-start backend mechanism**, you can deploy the entire application as a single web service. This is perfect for the free tiers of Render, Hugging Face Spaces, or Streamlit Community Cloud.
+
+1. Create a Web Service on your hosting provider (e.g., Render) pointing to this repository.
+2. Select **Python** as the runtime.
+3. Set the Build Command:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Set the Start Command:
+   ```bash
+   streamlit run streamlit_app.py --server.port $PORT --server.address 0.0.0.0
+   ```
+5. Add your Environment Variables:
+   - `GEMINI_API_KEY`: Your Google Gemini API Key.
+   - `API_URL`: Keep this as the default (`http://127.0.0.1:8000/chat`) or leave it blank. The Streamlit server will automatically run the FastAPI backend on localhost port 8000 inside the same container!
+
+### Option B: Multi-Service Blueprint Deployment (Render)
+
+If you prefer separate, dedicated backend and frontend services, we have provided a Render Blueprint configuration (`render.yaml`):
+
+1. Commit your changes and push them to GitHub/GitLab.
+2. Go to the **Render Dashboard** -> **New** -> **Blueprint**.
+3. Connect your repository. Render will automatically detect `render.yaml` and configure:
+   - A FastAPI service called `ai-chatbot-backend`.
+   - A Streamlit service called `ai-chatbot-frontend`.
+4. Enter your `GEMINI_API_KEY` when prompted.
+5. Once deployed, get the URL of your backend service (e.g., `https://ai-chatbot-backend.onrender.com`), copy it, and update the `API_URL` environment variable of your frontend service to `https://ai-chatbot-backend.onrender.com/chat`.
