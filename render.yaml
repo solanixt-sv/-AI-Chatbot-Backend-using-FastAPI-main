@@ -1,20 +1,25 @@
 services:
-  # 1. FastAPI Backend Service
   - type: web
     name: ai-chatbot-backend
-    runtime: python
+    env: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: GEMINI_API_KEY
-        sync: false # You will enter your Gemini API key in the Render dashboard
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.9
 
-  # 2. Streamlit Frontend Service
   - type: web
     name: ai-chatbot-frontend
-    runtime: python
+    env: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: streamlit run streamlit_app.py --server.port $PORT --server.address 0.0.0.0
     envVars:
+      - key: GEMINI_API_KEY
+        sync: false
       - key: API_URL
-        sync: false # You will enter the backend URL (e.g. https://ai-chatbot-backend.onrender.com/chat) here
+        value: https://ai-chatbot-backend.onrender.com/chat
+        previewValue: http://127.0.0.1:8000/chat
