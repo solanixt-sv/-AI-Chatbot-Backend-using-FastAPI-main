@@ -5,19 +5,28 @@ import socket
 import threading
 import time
 from dotenv import load_dotenv
+            try:
+                response = requests.post(
+                    API_URL,
+                    json={"prompt": active_prompt},
+                    timeout=120
+                )
+                if response.status_code == 200:
+                    reply = response.json().get("reply", "No reply received.")
+                    message_placeholder.markdown(reply)
+                else:
+                    message_placeholder.markdown(f"Error from backend: {response.status_code} - {response.text}")
+            except requests.exceptions.RequestException as e:
+                # If HTTP to the backend fails (common on Streamlit Cloud), try a local fallback
+                try:
+                    from app.llm_service import get_ai_reply
 
-load_dotenv()
-
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/chat")
-
-# Page config
-st.set_page_config(
-    page_title="SolanixT AI Chatbot",
-    page_icon="🤖",
-    layout="centered"
-)
-
-# Automatically run the FastAPI backend in a background thread if running locally
+                    reply = get_ai_reply(active_prompt)
+                    message_placeholder.markdown(reply)
+                except Exception as e2:
+                    message_placeholder.markdown(
+                        f"Failed to connect to backend and local fallback failed: {e} / {e2}"
+                    )
 # and the backend isn't already running. This enables single-click deployment/running.
 @st.cache_resource
 def auto_start_backend():
@@ -243,11 +252,13 @@ if active_prompt:
                 response = requests.post(
                     API_URL,
                     json={"prompt": active_prompt},
-                    timeout=30
+                    timeout=120
                 )
                 if response.status_code == 200:
                     reply = response.json().get("reply", "No reply received.")
                     message_placeholder.markdown(reply)
+                else:
+                    message_placeholder.markdown(f"Error from backend: {response.status_code} - {response.text}")
                     st.session_state.messages.append({"role": "assistant", "content": reply})
                 else:
                     try:
